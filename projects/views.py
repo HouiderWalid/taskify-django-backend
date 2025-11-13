@@ -7,6 +7,8 @@ from users.decorators import class_require_authentication
 from django.core.paginator import Paginator
 from datetime import datetime, timezone
 
+from users.models import Permission
+
 
 class CreateProjectSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=100, required=True)
@@ -30,7 +32,7 @@ class ProjectSerializer(serializers.ModelSerializer):
 
 class ProjectView(View):
 
-    @class_require_authentication
+    @class_require_authentication(Permission.CREATE_PROJECT)
     def post(self, request):
         data = json.loads(request.body)
         serializer = CreateProjectSerializer(data=data)
@@ -49,7 +51,7 @@ class ProjectView(View):
 
         return self.get(request, "Project created successfully.")
 
-    @class_require_authentication
+    @class_require_authentication(Permission.UPDATE_PROJECT)
     def put(self, request, project_id):
 
         project = Project.objects.filter(id=project_id).first()
@@ -68,7 +70,7 @@ class ProjectView(View):
 
         return self.get(request, "Project updated successfully.")
 
-    @class_require_authentication
+    @class_require_authentication(Permission.DELETE_PROJECT)
     def delete(self, request, project_id):
 
         project = Project.objects.filter(id=project_id).first()
@@ -79,7 +81,7 @@ class ProjectView(View):
 
         return self.get(request, "Project deleted successfully.")
 
-    @class_require_authentication
+    @class_require_authentication(Permission.VIEW_PROJECTS)
     def get(self, request, message=""):
         object_list = Project.objects.all()
         per_page = request.GET.get('per_page', 5)

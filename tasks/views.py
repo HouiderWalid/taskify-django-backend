@@ -9,7 +9,7 @@ from users.decorators import class_require_authentication
 from rest_framework import serializers
 from datetime import datetime, timezone
 
-from users.models import User
+from users.models import Permission, User
 
 
 class CreateTaskSerializer(serializers.Serializer):
@@ -66,7 +66,7 @@ class TaskSerializer(serializers.ModelSerializer):
 
 class TaskView(View):
 
-    @class_require_authentication
+    @class_require_authentication(Permission.CREATE_TASK)
     def post(self, request):
         data = json.loads(request.body)
         serializer = CreateTaskSerializer(data=data)
@@ -89,7 +89,7 @@ class TaskView(View):
 
         return self.get(request, "Task created successfully.")
 
-    @class_require_authentication
+    @class_require_authentication(Permission.UPDATE_TASK)
     def put(self, request, task_id):
 
         task = Task.objects.filter(id=task_id).first()
@@ -108,7 +108,7 @@ class TaskView(View):
 
         return self.get(request, "Task updated successfully.")
 
-    @class_require_authentication
+    @class_require_authentication(Permission.DELETE_TASK)
     def delete(self, request, task_id):
 
         task = Task.objects.filter(id=task_id).first()
@@ -119,7 +119,7 @@ class TaskView(View):
 
         return self.get(request, "Task deleted successfully.")
 
-    @class_require_authentication
+    @class_require_authentication(Permission.VIEW_TASKS)
     def get(self, request, message=""):
         object_list = Task.objects.all()
         per_page = request.GET.get('per_page', 5)

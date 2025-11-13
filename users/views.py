@@ -77,7 +77,7 @@ def signup(request):
     )
 
     user_data = UserSerializer(user).data
-    return JsonResponse({"code": 200, "data": {"access_token": access_token, "user": user_data}, "messages": "Sign up successful."}, status=200)
+    return JsonResponse({"code": 200, "data": {"token": access_token, "user": user_data}, "messages": "Sign up successful."}, status=200)
 
 
 @require_http_methods(['POST'])
@@ -105,7 +105,7 @@ def signin(request):
     return JsonResponse({"code": 200, "data": {"token": access_token, "user": user_data}, "messages": "Sign in successful."}, status=200)
 
 
-@require_authentication
+@require_authentication()
 @require_http_methods(['GET'])
 def authenticate(request):
     user_data = UserSerializer(request.user).data
