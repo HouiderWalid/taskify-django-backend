@@ -1,0 +1,53 @@
+services:
+  django:
+    build:
+      context: ../../
+      dockerfile: docker/local/python/Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - mysql
+    volumes:
+      - ../../.:/var/www/html
+      - ./nginx/conf.d:/etc/nginx/conf.d
+    networks:
+      - taskify_django_local
+
+  mysql:
+    image: mysql/mysql-server:8.0
+    ports:
+      - "5306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
+      MYSQL_ROOT_HOST: '${DB_HOST}'
+      MYSQL_DATABASE: '${DB_DATABASE}'
+      MYSQL_USER: '${DB_USERNAME}'
+      MYSQL_PASSWORD: '${DB_PASSWORD}'
+      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+    volumes:
+      - 'django-mysql-volume:/var/lib/mysql'
+    networks:
+      - taskify_django_local
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    environment:
+      - PMA_HOST=${DB_HOST}
+      - PMA_PORT=${DB_PORT}
+      - PMA_USER=${DB_USERNAME}
+      - PMA_PASSWORD=${DB_PASSWORD}
+      - UPLOAD_LIMIT= 300000000
+    depends_on:
+      - mysql
+    networks:
+      - taskify_django_local
+    ports:
+      - "8101:80"
+
+networks:
+  taskify_django_local:
+    driver: bridge
+
+volumes:
+  django-mysql-volume:
+    driver: local
